@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="" lang="zh-cmn-Hans" style="position: static;">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="keywords" content="有赞,移动电商服务平台">
+  <meta name="description" content="">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="format-detection" content="telephone=no">
+  <meta http-equiv="cleartype" content="on">
+  <meta name="referrer" content="always">
+  <link rel="shortcut icon" href="https://b.yzcdn.cn/v2/image/yz_fc.ico">
+  <title>购物车</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- <link rel="stylesheet" href="./css/cart_base.css">
+  <link rel="stylesheet" href="./css/cart_trade.css">
+  <link rel="stylesheet" href="./css/cart.css"> -->
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="body-fixed-bottom" style="">
+  <div class="container" style="min-height: 581px;" v-cloak id="app">
+    <div class="content clearfix js-page-content ">
+      <div id="cart-container ">
+        <div>
+          <!--商品列表-->
+          <div class="js-shop-list shop-list" v-if="lists">
+            <!--店铺的遍历-->
+            <div class="block block-order block-cart" v-for="(shop, shopIndex) in lists" >
+              <div class="header">
+                <div class="select-group js-select-group" @click="selectShop(shop)" :ref="shopIndex">
+                  <span class="check" :class="{checked: shop.checked}" v-show="!editingShop"></span>
+                  <span class="check" :class="{checked: shop.removeChecked}" v-show="editingShop"></span>
+                </div>
+                <a class="shop-title" href="javascript:;">
+                  <i class="custom-store-img">
+                    店铺：
+                  </i>{{shop.shopTitle}}</a>
+                <a href="javascript:;" data-type="cart" class="j-edit-list pull-right c-blue font-size-12 edit-list" @click="edit(shop, shopIndex)">
+                  <!---->
+                  {{shop.editingMsg}}
+                </a>
+              </div>
+              <!--店铺内商品的遍历-->
+              <div>
+                <ul class="js-list block block-list block-list-cart border-0">
+                  <li class="block-item block-item-cart "
+                      v-for="(good, goodIndex) in shop.goodsList"
+                      :class="{editing: shop.editing}"
+                      :key="good.id"
+                  >
+                    <div>
+                      <div class="check-container" @click="selectGood(shop, good)" >
+                        <span class="check" :class="{checked: editingShop ? good.removeChecked:good.checked}"></span>
+                      </div>
+                      <div class="name-card clearfix" @click="shopinfo(good.id,shop.editing)">
+                        <a class="thumb js-goods-link">
+                          <img class="js-lazy" :src="good.img">
+                          <!---->
+                        </a>
+                        <div class="detail">
+                          <a class="js-goods-link">
+                            <h3 class="title js-ellipsis">
+                              <i>{{good.title}}</i>
+                            </h3>
+                          </a>
+                          <p class="sku ellipsis">
+                            {{good.sku}}
+                          </p>
+                          <!-- 显示状态 -->
+                          <div class="num" v-show="!shop.editing">
+                            ×
+                            <span class="num-txt">{{good.number}}</span>
+                            <!---->
+                          </div>
+                          <!-- 编辑状态 -->
+                          <div class="num" v-show="shop.editing" >
+                            <!--商品数量的增减-->
+                            <div class="quantity">
+                              <button type="button" class="minus" :class="{disabled: good.number===1}"></button>
+                              <input type="number" pattern="[0-9]*" class="txt" :value="good.number" >
+                              <button type="button" class="plus "></button>
+                              <div class="response-area response-area-minus" @click="reduce(good)"></div>
+                              <div class="response-area response-area-plus" @click="add(good)"></div>
+                            </div>
+                          </div>
+                          <div class="price c-orange">
+                            ¥
+                            <span>{{good.price| price}}</span>
+                          </div>
+                        </div>
+                      <div class="delete-btn" @click="remove(shop,shopIndex,good,goodIndex)">
+                        <span>删除</span>
+                      </div>
+                    </div>
+                  </li>
+
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!--固定功能栏-->
+          <div style="padding:0;" class="js-bottom-opts bottom-fix">
+            <div class="bottom-cart clear-fix">
+              <div class="select-all" @click="selectAll">
+                <span class="check" :class="{checked: editingShop? allRemoveSelected : allSelected}"></span>
+                全选
+              </div>
+              <!-- 显示状态 -->
+              <div class="total-price" v-show="!editingShop">
+                合计：¥
+                <span class="js-total-price" style="color: rgb(255, 102, 0);">{{total | price}}</span>
+                <p class="c-gray-dark">不含运费</p>
+              </div>
+              <button href="javascript:;" :disabled="!selectLists.length" v-show="!editingShop" class="js-go-pay btn btn-orange-dark font-size-14" style="margin-right: 2px;" @click="buy">
+                结算
+              </button>
+              <!-- 编辑状态 -->
+              <button href="javascript:;" :disabled="!removeLists.length" class="j-delete-goods btn font-size-14 btn-red" v-show="editingShop" @click="removeList" style="margin-right: 2px;">
+                删除
+              </button>
+            </div>
+            <foot></foot>
+          </div>
+
+          <div class="motify" :style="{display: buyMsg ? 'block': 'none'}">
+            <div class="motify-inner">该功能暂未开放</div>
+          </div>
+          <div class="loading-more" v-if="!lists" ><span></span></div>
+
+        </div>
+      </div>
+    </div>
+
+
+
+    <!--删除的确认界面-->
+    <div id="hEQD1ZYb2p" v-show="removePopup" style="height:100%;position:fixed;top:0px;left:0px;right:0px;background-color:rgba(0,0,0,.7);z-index:1000;transition:none 0.2s ease;opacity:1;"></div>
+    <div id="RKinAL98X5" class="popout-confirm popout-box" v-show="removePopup" style="overflow:hidden;position:absolute;z-index:1000;transition: opacity 300ms ease ;top:50%;left:50%;transform: translate3d(-50%,-50%,0px);visibility:visible;border-radius: 4px;background: white;width:270px;padding: 15px;opacity: 1;">
+      <div class="confirm-content font-size-14" style="line-height: 20px; padding:5px 5px 10px;">
+        {{removeMsg}}
+      </div>
+      <hr style="margin:9px -15px 10px;">
+      <div class="btn-2-1">
+        <p class="js-cancel center font-size-16" style="padding-top: 5px;" @click="removePopup=false">取消</p>
+      </div>
+      <div class="btn-2-1">
+        <p class="js-ok center c-green font-size-16" style="padding-top: 5px;" @click="removeConfirm">确定</p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+
+</html>
