@@ -22,4 +22,4 @@
 vue.js/ES6/Webpack
 
 #### 预览地址：
-https://xujj277.github.io/youzan-preview/
+http://weirongab.xyz/dist/
